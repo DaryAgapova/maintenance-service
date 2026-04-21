@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Request, Form, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -220,5 +220,50 @@ def add_comment(
     if not ticket:
         raise HTTPException(status_code=404)
     db.add(Comment(ticket_id=ticket_id, author_id=current_user.id, body=body))
+    if ticket.client_id != current_user.id:
+        db.add(Notification(
+            user_id=ticket.client_id,
+            ticket_id=ticket_id,
+            message=f"Новый комментарий к заявке #{ticket_id} от {current_user.full_name}"
+        ))
+    if ticket.assignee_id and ticket.assignee_id != current_user.id:
+        db.add(Notification(
+            user_id=ticket.assignee_id,
+            ticket_id=ticket_id,
+            message=f"Новый комментарий к заявке #{ticket_id} от {current_user.full_name}"
+        ))
     db.commit()
     return RedirectResponse(url=f"/tickets/{ticket_id}", status_code=302)
+
+
+@router.get("/api/notifications/count")
+def notifications_count(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    count = db.query(Notification).filter(
+        Notification.user_id == current_user.id,
+        Notification.is_read == False
+    ).count()
+    return JSONResponse({"count": count})
+
+
+@router.get("/notifications", response_class=HTMLResponse)
+def notifications_page(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    notifs = db.query(Notification).filter(
+        Notification.user_id == current_user.id
+    ).order_by(Notification.created_at.desc()).all()
+    db.query(Notification).filter(
+        Notification.user_id == current_user.id,
+        Notification.is_read == False
+    ).update({"is_read": True})
+    db.commit()
+    return templates.TemplateResponse(request, "notifications.html", {
+        "current_user": current_user,
+        "notifications": notifs,
+        "unread_count": 0,
+    })

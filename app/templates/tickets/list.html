@@ -57,7 +57,7 @@
         <td><span class="badge bg-{{ status_colors[t.status] }}">{{ status_labels[t.status] }}</span></td>
         <td><span class="badge bg-{{ priority_colors[t.priority] }}">{{ priority_labels[t.priority] }}</span></td>
         <td>{{ t.equipment.name if t.equipment else '—' }}</td>
-        <td>{{ t.assignee.full_name if t.assignee else '<span class="text-muted">не назначен</span>' }}</td>
+        <td>{{ t.assignee.full_name if t.assignee else '—' }}</td>
         <td class="text-muted small">{{ t.created_at.strftime('%d.%m.%Y') }}</td>
       </tr>
       {% else %}

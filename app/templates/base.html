@@ -21,10 +21,14 @@
     {% endif %}
   </div>
   <div class="d-flex align-items-center gap-3">
-    <span class="text-light small">
-      {{ current_user.full_name }}
-      <span class="badge bg-secondary ms-1">{{ current_user.role }}</span>
-    </span>
+      <span class="text-light small">
+        {{ current_user.full_name }}
+        <span class="badge bg-secondary ms-1">{{ current_user.role }}</span>
+      </span>
+      <a href="/notifications" class="text-light position-relative me-2" style="text-decoration:none">
+  &#128276;
+  <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:10px;display:none"></span>
+</a>
     <a href="/logout" class="btn btn-outline-light btn-sm">Выйти</a>
   </div>
 </nav>
@@ -32,5 +36,19 @@
 {% block content %}{% endblock %}
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+async function loadNotifCount() {
+  try {
+    const r = await fetch('/api/notifications/count');
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data.count > 0) {
+      document.getElementById('notif-badge').textContent = data.count;
+      document.getElementById('notif-badge').style.display = 'inline';
+    }
+  } catch(e) {}
+}
+loadNotifCount();
+</script>
 </body>
 </html>

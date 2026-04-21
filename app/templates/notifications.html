@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h4 class="mb-4">Уведомления</h4>
+{% if notifications %}
+<div class="card">
+  {% for n in notifications %}
+  <div class="d-flex align-items-start p-3 border-bottom {% if not n.is_read %}bg-light{% endif %}">
+    <div class="flex-grow-1">
+      <p class="mb-1">{{ n.message }}</p>
+      <small class="text-muted">{{ n.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+    </div>
+    {% if n.ticket_id %}
+    <a href="/tickets/{{ n.ticket_id }}" class="btn btn-sm btn-outline-primary ms-3">Открыть</a>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">Уведомлений нет</p>
+{% endif %}
+{% endblock %}
