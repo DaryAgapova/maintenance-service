@@ -247,6 +247,23 @@ def notifications_count(
     ).count()
     return JSONResponse({"count": count})
 
+@router.post("/tickets/{ticket_id}/delete")
+def delete_ticket(
+    ticket_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Нет доступа")
+    ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404)
+    db.query(TicketHistory).filter(TicketHistory.ticket_id == ticket_id).delete()
+    db.query(Comment).filter(Comment.ticket_id == ticket_id).delete()
+    db.query(Notification).filter(Notification.ticket_id == ticket_id).delete()
+    db.delete(ticket)
+    db.commit()
+    return RedirectResponse(url="/", status_code=302)
 
 @router.get("/notifications", response_class=HTMLResponse)
 def notifications_page(

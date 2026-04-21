@@ -95,7 +95,18 @@
     </div>
   </div>
   {% endif %}
-
+{% if current_user.role == 'admin' %}
+<div class="card mb-3">
+  <div class="card-body">
+    <form method="post" action="/tickets/{{ ticket.id }}/delete"
+          onsubmit="return confirm('Удалить заявку #{{ ticket.id }}? Это действие необратимо.')">
+      <button class="btn btn-danger btn-sm w-100">
+        <i class="fa-solid fa-trash me-1"></i> Удалить заявку
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
   {% if ticket.history %}
   <div class="card">
     <div class="card-header"><h6 class="mb-0">История изменений</h6></div>
