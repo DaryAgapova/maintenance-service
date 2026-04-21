@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block content %}
+<h4 class="mb-4">Панель администратора</h4>
+
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h2>{{ total_tickets }}</h2>
+        <p class="text-muted mb-0">Всего заявок</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h2 class="text-warning">{{ open_tickets }}</h2>
+        <p class="text-muted mb-0">Открытых заявок</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h2>{{ users|length }}</h2>
+        <p class="text-muted mb-0">Пользователей</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h2>{{ equipment_list|length }}</h2>
+        <p class="text-muted mb-0">Единиц оборудования</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+<div class="col-md-6">
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h6 class="mb-0">Пользователи</h6>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-sm mb-0">
+        <thead><tr><th>Имя</th><th>Email</th><th>Роль</th></tr></thead>
+        <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.full_name }}</td>
+          <td class="text-muted small">{{ u.email }}</td>
+          <td><span class="badge bg-secondary">{{ u.role }}</span></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#addUserForm">+ Добавить пользователя</button>
+      <div class="collapse mt-3" id="addUserForm">
+        <form method="post" action="/admin/users/add">
+          <div class="mb-2"><input name="full_name" class="form-control form-control-sm" placeholder="Полное имя" required></div>
+          <div class="mb-2"><input name="email" type="email" class="form-control form-control-sm" placeholder="Email" required></div>
+          <div class="mb-2"><input name="password" type="password" class="form-control form-control-sm" placeholder="Пароль" required></div>
+          <div class="mb-2">
+            <select name="role" class="form-select form-select-sm">
+              <option value="client">Клиент</option>
+              <option value="technician">Техник</option>
+              <option value="admin">Администратор</option>
+            </select>
+          </div>
+          <button class="btn btn-sm btn-success">Создать</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-6">
+  <div class="card mb-4">
+    <div class="card-header"><h6 class="mb-0">Оборудование</h6></div>
+    <div class="table-responsive">
+      <table class="table table-sm mb-0">
+        <thead><tr><th>Название</th><th>Инв. №</th><th>Расположение</th></tr></thead>
+        <tbody>
+        {% for e in equipment_list %}
+        <tr>
+          <td>{{ e.name }}</td>
+          <td class="text-muted small">{{ e.inventory_number or '—' }}</td>
+          <td class="text-muted small">{{ e.location or '—' }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#addEquipForm">+ Добавить оборудование</button>
+      <div class="collapse mt-3" id="addEquipForm">
+        <form method="post" action="/admin/equipment/add">
+          <div class="mb-2"><input name="name" class="form-control form-control-sm" placeholder="Название *" required></div>
+          <div class="mb-2"><input name="inventory_number" class="form-control form-control-sm" placeholder="Инвентарный номер"></div>
+          <div class="mb-2"><input name="location" class="form-control form-control-sm" placeholder="Расположение"></div>
+          <div class="mb-2"><input name="category" class="form-control form-control-sm" placeholder="Категория"></div>
+          <button class="btn btn-sm btn-success">Добавить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% if workload %}
+  <div class="card">
+    <div class="card-header"><h6 class="mb-0">Нагрузка техников</h6></div>
+    <div class="card-body">
+      {% for name, count in workload %}
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span>{{ name }}</span>
+        <span class="badge bg-primary">{{ count }} активных</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+</div>
+{% endblock %}

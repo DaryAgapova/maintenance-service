@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Заявки на обслуживание</h4>
+  <a href="/tickets/new" class="btn btn-primary btn-sm">+ Новая заявка</a>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-4">
+        <input name="search" class="form-control form-control-sm" placeholder="Поиск по названию..." value="{{ search }}">
+      </div>
+      <div class="col-md-2">
+        <select name="status" class="form-select form-select-sm">
+          <option value="">Все статусы</option>
+          {% for k, v in status_labels.items() %}
+          <option value="{{ k }}" {% if filter_status == k %}selected{% endif %}>{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="priority" class="form-select form-select-sm">
+          <option value="">Все приоритеты</option>
+          {% for k, v in priority_labels.items() %}
+          <option value="{{ k }}" {% if filter_priority == k %}selected{% endif %}>{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-secondary btn-sm">Найти</button>
+        <a href="/" class="btn btn-outline-secondary btn-sm">Сброс</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Название</th>
+          <th>Статус</th>
+          <th>Приоритет</th>
+          <th>Оборудование</th>
+          <th>Исполнитель</th>
+          <th>Создана</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for t in tickets %}
+      <tr onclick="location.href='/tickets/{{ t.id }}'">
+        <td class="text-muted">{{ t.id }}</td>
+        <td>{{ t.title }}</td>
+        <td><span class="badge bg-{{ status_colors[t.status] }}">{{ status_labels[t.status] }}</span></td>
+        <td><span class="badge bg-{{ priority_colors[t.priority] }}">{{ priority_labels[t.priority] }}</span></td>
+        <td>{{ t.equipment.name if t.equipment else '—' }}</td>
+        <td>{{ t.assignee.full_name if t.assignee else '<span class="text-muted">не назначен</span>' }}</td>
+        <td class="text-muted small">{{ t.created_at.strftime('%d.%m.%Y') }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="text-center text-muted py-4">Заявок не найдено</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
