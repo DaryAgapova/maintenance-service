@@ -62,21 +62,21 @@
     </div>
   </div>
 
-  {% if allowed_statuses %}
-  <div class="card mb-3">
-    <div class="card-header"><h6 class="mb-0">Сменить статус</h6></div>
-    <div class="card-body">
-      <form method="post" action="/tickets/{{ ticket.id }}/status">
-        <select name="new_status" class="form-select form-select-sm mb-2">
-          {% for s in allowed_statuses %}
-          <option value="{{ s }}">{{ status_labels[s] }}</option>
-          {% endfor %}
-        </select>
-        <button class="btn btn-warning btn-sm w-100">Применить</button>
-      </form>
+    {% if allowed_statuses and current_user.role != 'client' %}
+    <div class="card mb-3">
+      <div class="card-header"><h6 class="mb-0">Сменить статус</h6></div>
+      <div class="card-body">
+        <form method="post" action="/tickets/{{ ticket.id }}/status">
+          <select name="new_status" class="form-select form-select-sm mb-2">
+            {% for s in allowed_statuses %}
+            <option value="{{ s }}">{{ status_labels[s] }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-warning btn-sm w-100">Применить</button>
+        </form>
+      </div>
     </div>
-  </div>
-  {% endif %}
+    {% endif %}
 
   {% if current_user.role == 'admin' %}
   <div class="card mb-3">
