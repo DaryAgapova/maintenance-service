@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-3">
+  <a href="/admin" class="text-decoration-none text-muted">← Панель администратора</a>
+</div>
+
+<div class="d-flex align-items-center gap-3 mb-4">
+  <div style="width:48px;height:48px;background:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700">
+    {{ technician.full_name[0] }}
+  </div>
+  <div>
+    <h4 class="mb-0">{{ technician.full_name }}</h4>
+    <span class="text-muted small">{{ technician.email }}</span>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-number">{{ total }}</div>
+      <div class="stat-label">Всего заявок</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-number text-primary">{{ active }}</div>
+      <div class="stat-label">Активных</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-number text-success">{{ done + closed }}</div>
+      <div class="stat-label">Выполнено</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-number">
+        {% if avg_hours %}
+          {% if avg_hours < 1 %}
+            {{ "%.0f"|format(avg_hours * 60) }} мин
+          {% else %}
+            {{ "%.1f"|format(avg_hours) }} ч
+          {% endif %}
+        {% else %}
+          —
+        {% endif %}
+      </div>
+      <div class="stat-label">Среднее время закрытия</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Заявки техника</div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Название</th>
+          <th>Статус</th>
+          <th>Приоритет</th>
+          <th>Создана</th>
+          <th>Закрыта</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for t in tickets %}
+      <tr onclick="location.href='/tickets/{{ t.id }}'" style="cursor:pointer">
+        <td class="text-muted">{{ t.id }}</td>
+        <td>{{ t.title }}</td>
+        <td><span class="badge bg-{{ status_colors[t.status] }}">{{ status_labels[t.status] }}</span></td>
+        <td><span class="badge bg-{{ priority_colors[t.priority] }}">{{ priority_labels[t.priority] }}</span></td>
+        <td class="text-muted small">{{ t.created_at.strftime('%d.%m.%Y') }}</td>
+        <td class="text-muted small">{{ t.closed_at.strftime('%d.%m.%Y') if t.closed_at else '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="text-center text-muted py-4">Заявок нет</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

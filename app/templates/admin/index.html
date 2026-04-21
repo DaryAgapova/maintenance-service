@@ -115,7 +115,7 @@
     <div class="card-body">
       {% for name, count in workload %}
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <span>{{ name }}</span>
+        <a href="/admin/technician/{{ workload_ids[loop.index0] }}" class="text-decoration-none text-dark">{{ name }}</a>
         <span class="badge bg-primary">{{ count }} активных</span>
       </div>
       {% endfor %}
