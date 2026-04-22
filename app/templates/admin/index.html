@@ -87,7 +87,7 @@
         <tbody>
         {% for e in equipment_list %}
         <tr>
-          <td>{{ e.name }}</td>
+          <td><a href="/admin/equipment/{{ e.id }}" class="text-decoration-none text-dark">{{ e.name }}</a></td>
           <td class="text-muted small">{{ e.inventory_number or '—' }}</td>
           <td class="text-muted small">{{ e.location or '—' }}</td>
         </tr>

@@ -120,3 +120,45 @@ def technician_detail(
         "priority_labels": {"low": "Низкий", "medium": "Средний", "high": "Высокий", "critical": "Критический"},
         "priority_colors": {"low": "success", "medium": "warning", "high": "danger", "critical": "danger"},
     })
+@router.get("/equipment/{equipment_id}", response_class=HTMLResponse)
+def equipment_detail(
+    equipment_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    equipment = db.query(Equipment).filter(Equipment.id == equipment_id).first()
+    if not equipment:
+        raise HTTPException(status_code=404)
+    
+    tickets = db.query(Ticket).filter(Ticket.equipment_id == equipment_id).order_by(Ticket.created_at.desc()).all()
+    
+    total = len(tickets)
+    active = len([t for t in tickets if t.status in ["new", "in_progress"]])
+    done = len([t for t in tickets if t.status == "done"])
+    closed = len([t for t in tickets if t.status == "closed"])
+    
+    # Среднее время закрытия
+    closed_tickets = [t for t in tickets if t.closed_at]
+    if closed_tickets:
+        avg_hours = sum(
+            (t.closed_at - t.created_at).total_seconds() / 3600
+            for t in closed_tickets
+        ) / len(closed_tickets)
+    else:
+        avg_hours = None
+
+    return templates.TemplateResponse(request, "admin/equipment.html", {
+        "current_user": current_user,
+        "equipment": equipment,
+        "tickets": tickets,
+        "total": total,
+        "active": active,
+        "done": done,
+        "closed": closed,
+        "avg_hours": avg_hours,
+        "status_labels": {"new": "Новая", "in_progress": "В работе", "done": "Выполнена", "closed": "Закрыта"},
+        "status_colors": {"new": "secondary", "in_progress": "primary", "done": "success", "closed": "dark"},
+        "priority_labels": {"low": "Низкий", "medium": "Средний", "high": "Высокий", "critical": "Критический"},
+        "priority_colors": {"low": "success", "medium": "warning", "high": "danger", "critical": "danger"},
+    })
